@@ -1,9 +1,9 @@
 <template>
-  <div class="h-screen w-screen fixed top-0">
-    <div v-if="img.length" class="fixed top-0 left-0 w-screen h-screen bg-white z-[1000]">
+  <div v-if="activeStep === 'inspect'" class="h-screen w-screen fixed top-0">
+    <!-- <div v-if="img.length" class="fixed top-0 left-0 w-screen h-screen bg-white z-[1000]">
       <span class="absolute top-0 right-0 text-2xl" @click="img = ''">&#10005;</span>
       <img :src="img" alt="" class="w-full h-auto" />
-    </div>
+    </div> -->
     <div ref="video-container" class="bg-black">
       <video id="video" playsinline class="w-screen min-h-screen h-full">
         Video stream not available.
@@ -19,7 +19,13 @@
     <!-- Timer -->
     <button
       class="absolute top-3 left-4 w-[42px] h-[42px] rounded-full bg-white border-[3px]"
-      :class="[timeLeft < 15 ? 'border-red-600' : 'border-black']"
+      :class="[
+        activeIndex > 0 && timeLeft > 15
+          ? 'border-green-600'
+          : activeIndex > 0 && timeLeft < 15
+          ? 'border-red-600'
+          : 'border-black',
+      ]"
     >
       <span
         class="text-sm font-medium"
@@ -90,6 +96,18 @@
       </div>
     </div>
   </div>
+
+  <!-- View images -->
+  <div v-else class="p-6">
+    <div class="" v-for="(car, idx) in images" :key="idx">
+      <img
+        :src="car.imgPreview"
+        alt="car-preview"
+        class="block mb-4 w-full h-[200px] aspect-square"
+      />
+      <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -97,6 +115,7 @@ export default {
   name: "NuxtTutorial",
   data() {
     return {
+      activeStep: "inspect",
       lat: 0,
       long: 0,
       width: 0,
@@ -253,7 +272,7 @@ export default {
       if (!this.startInspection) {
         ++this.activeIndex;
         this.startInspection = true;
-        this.createTimer();
+        this.startTimer();
         return null;
       }
 
@@ -275,11 +294,12 @@ export default {
           this.img = data;
           fetch(data)
             .then((res) => res.blob())
-            .then((data) => {
-              console.log(data, "image");
-              photo.setAttribute("src", data);
+            .then((blob) => {
+              photo.setAttribute("src", blob);
               this.images.push({
-                [this.stages[this.activeIndex].tag]: data,
+                title: this.stages[this.activeIndex].tag,
+                blob: blob,
+                imgPreview: data,
               });
               ++this.activeIndex;
             })
@@ -289,6 +309,7 @@ export default {
         }
       } else {
         alert("Inspection completed!!! ");
+        this.activeStep = "preview";
       }
     },
     clearPhoto() {
@@ -304,7 +325,7 @@ export default {
     stopRecording() {
       this.stream.getTracks().forEach((track) => track.stop());
     },
-    createTimer() {
+    startTimer() {
       this.interval = setInterval(() => {
         this.timer = this.timer - 1000;
       }, 1000);
@@ -332,9 +353,9 @@ export default {
     // activeIndex(val) {
     //   console.log(val, "active Index");
     // },
-    // images(val) {
-    //   console.log(val, "images");
-    // },
+    images(val) {
+      console.log(val, "images");
+    },
     timer(val) {
       if (val <= 0) {
         this.timer = 0;
