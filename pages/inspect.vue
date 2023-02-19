@@ -99,13 +99,28 @@
 
   <!-- View images -->
   <div v-else class="p-6">
-    <div class="" v-for="(car, idx) in images" :key="idx">
+    <div class="mb-4 last:mb-0" v-for="(car, idx) in images" :key="idx">
       <img
         :src="car.imgPreview"
         alt="car-preview"
-        class="block mb-4 w-full h-[200px] aspect-square"
+        class="block w-full h-[200px] aspect-square"
       />
       <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
+    </div>
+
+    <div class="flex">
+      <button
+        class="flex-1 h-[50px] bg-teal-500 rounded-lg text-white mr-4"
+        @click="reset"
+      >
+        Redo
+      </button>
+
+      <nuxt-link to="/" class="flex-1"
+        ><button class="h-[50px] w-full bg-teal-500 rounded-lg text-white">
+          Continue
+        </button></nuxt-link
+      >
     </div>
   </div>
 </template>
@@ -179,7 +194,6 @@ export default {
     };
   },
   mounted() {
-    // if (this.check) {
     // const videoContainer = this.$refs["video-container"];
     const deviceHeight = window.innerHeight;
     const cameraView = this.$refs["camera-view"];
@@ -190,7 +204,6 @@ export default {
 
     this.getGeoLocation();
     this.initMedia();
-    // }
   },
   methods: {
     check() {
@@ -310,6 +323,7 @@ export default {
       } else {
         alert("Inspection completed!!! ");
         this.activeStep = "preview";
+        this.clearInterval();
       }
     },
     clearPhoto() {
@@ -332,6 +346,18 @@ export default {
     },
     clearInterval() {
       clearInterval(this.interval);
+    },
+    reset() {
+      this.activeStep = "inspect";
+      this.photo = null;
+      this.canvas = null;
+      this.isStreaming = false;
+      this.stream = null;
+      this.startInspection = false;
+      this.activeIndex = 0;
+      this.interval = null;
+      this.timer = 90000;
+      this.images = [];
     },
   },
   destroyed() {
