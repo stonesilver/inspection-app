@@ -1,29 +1,36 @@
 <template>
-  <div class="h-screen w-screen fixed top-0 px-2">
-    <div
-      ref="video-container"
-      class="relative border-[3px] border-teal-400 rounded-xl h-[65vh]"
-    >
-      <video id="video" playsinline class="w-screen h-full">
+  <div class="h-screen w-screen absolute top-0">
+    <!-- <div v-if="img.length" class="fixed top-0 left-0 w-screen h-screen bg-white z-[1000]">
+      <span class="absolute top-0 right-0 text-2xl" @click="img = ''">&#10005;</span>
+      <img :src="img" alt="" class="w-full h-auto" />
+    </div> -->
+    <div ref="video-container" class="bg-black">
+      <video id="video" playsinline class="w-screen min-h-screen h-full">
         Video stream not available.
       </video>
+    </div>
+
+    <div
+      class="flex flex-col justify-end fixed bottom-0 left-0 w-screen py-4 z-50 bg-white border h-[28vh]"
+    >
       <button
         id="startbutton"
-        class="absolute bottom-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center font-medium text-sm bg-black rounded-full text-white translate-y-[30px] after:absolute after:w-[60px] after:h-[60px] after:content-[''] after:rounded-full after:border-2 after:border-teal-400"
+        class="absolute top-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center border-white font-medium text-sm bg-black rounded-full text-white translate-y-[-30px] after:absolute after:w-[60px] after:h-[60px] after:content-[''] after:rounded-full after:border-2 after:border-teal-400"
         @click="takePicture"
       >
         {{ activeIndex < 7 ? stages[activeIndex].text : "Submit" }}
       </button>
-    </div>
-    <div class="flex flex-col justify-end border border-green-400 h-[25vh]">
-      <canvas id="canvas"> </canvas>
-      <div class="output flex gap-4">
+
+      <canvas id="canvas" class="hidden"> </canvas>
+
+      <!-- <div class="output flex gap-4">
         <img
           id="photo"
           class="hidden"
           alt="The screen capture will appear in this box."
         />
-      </div>
+      </div> -->
+
       <div class="">
         <img
           :src="activeIndex < 7 ? stages[activeIndex].url : '/images/car-right.png'"
@@ -98,6 +105,7 @@ export default {
           desc: "Interior view of your car showing your vehicle back seat",
         },
       ],
+      img: "",
     };
   },
   mounted() {
@@ -171,9 +179,11 @@ export default {
       );
     },
     takePicture() {
+      console.log("Clicked😖", this.activeIndex, this.startInspection);
       if (!this.startInspection) {
         ++this.activeIndex;
-        return (this.startInspection = true);
+        this.startInspection = true;
+        return null;
       }
 
       if (this.activeIndex < 7) {
@@ -191,6 +201,7 @@ export default {
           context.drawImage(video, 0, 0, this.width, this.height);
 
           const data = canvas.toDataURL("image/png");
+          this.img = data;
           fetch(data)
             .then((res) => res.blob())
             .then((data) => {
@@ -251,14 +262,14 @@ export default {
   height: 240px;
 }
 
-#canvas {
+/*#canvas {
   display: none;
 }
 
 .output {
   width: 340px;
   vertical-align: top;
-}
+}*/
 </style>
 <!-- <svg class="position-absolute"
                style="height: 100px; transform: rotate(270deg); width: 100px;">
