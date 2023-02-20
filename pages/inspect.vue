@@ -288,7 +288,7 @@ export default {
           width: { ideal: 1280 },
           height: { ideal: 720 },
           // frameRate: { ideal: 10, max: 15 },
-          //   facingMode: { exact: "environment" },
+          facingMode: { exact: "environment" },
         },
       };
       try {
