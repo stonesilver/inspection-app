@@ -13,7 +13,7 @@
     <!-- camera view -->
     <div
       ref="camera-view"
-      class="w-[97%] mx-auto absolute top-0 left-2 h-[60vh] border-2 z-[20] border-teal-400 rounded-lg camera-view"
+      class="w-[97%] mx-auto absolute top-0 left-2 h-[60vh] border-2 z-[20] border-transparent rounded-lg camera-view"
     ></div>
 
     <!-- Timer -->
@@ -46,17 +46,17 @@
 
     <!-- Step indicator -->
     <div
-      class="absolute top-8 right-4 z-[49] bg-[#2b2b2b80] px-2 pt-2 pb-10 w-auto h-auto rounded-[1rem]"
+      class="absolute top-8 right-4 z-[49] bg-[#2b2b2b80] px-1 pt-2 pb-10 w-auto h-auto rounded-[1rem]"
     >
       <span
-        class="flex justify-center items-center w-8 h-8 rounded-full mb-3 last:mb-0"
+        class="flex justify-center items-center w-[23px] h-[23px] rounded-full mb-3 last:mb-0"
         :class="[activeIndex > idx + 1 ? 'bg-[#12B76A]' : 'bg-[#ffffff59]']"
         v-for="(svg, idx) in 6"
         :key="svg"
       >
         <svg
-          width="14"
-          height="10"
+          width="12"
+          height="8"
           viewBox="0 0 14 10"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -78,14 +78,27 @@
     >
     </canvas>
 
+    <div
+      class="flex flex-col justify-center fixed top-[60px] left-6 h-[178px] w-[176px] bg-[#05030366] rounded-lg"
+    >
+      <img
+        :src="activeIndex < 7 ? stages[activeIndex].url : '/images/car-right.png'"
+        alt="car-right"
+        class="w-[145px] h-[114px] object-contain object-center block mx-auto"
+      />
+      <p class="text-sm text-center text-white">
+        {{ activeIndex < 7 ? stages[activeIndex].desc : "All done submit now" }}
+      </p>
+    </div>
+
     <!-- CTA  -->
     <div
       ref="cta"
-      class="flex flex-col justify-end fixed bottom-0 left-0 w-screen py-4 z-50 bg-white h-[28vh]"
+      class="flex flex-col justify-end fixed bottom-0 left-0 w-screen py-4 z-50 bg-transparent h-[28vh]"
     >
       <button
         id="startbutton"
-        class="absolute top-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center border-white font-medium text-sm bg-black rounded-full text-white translate-y-[-30px] after:absolute after:w-[60px] after:h-[60px] after:content-[''] after:rounded-full after:border-2 after:border-teal-400"
+        class="absolute top-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center border-white text-black font-medium text-sm bg-white rounded-full translate-y-[50%] after:absolute after:w-[57px] after:h-[57px] after:content-[''] after:rounded-full after:border after:border-[#101828]"
         @click="takePicture"
       >
         {{ activeIndex < 7 ? stages[activeIndex].text : "Submit" }}
@@ -100,18 +113,19 @@
           alt="The screen capture will appear in this box."
         />
       </div>
+      <p v-if="activeIndex === 0" class="text-red-600 text-center">Cancel</p>
 
-      <div class="">
+      <!-- <div class="">
         <img
           :src="activeIndex < 7 ? stages[activeIndex].url : '/images/car-right.png'"
           alt="car-right"
           class="w-[150px] block mx-auto"
         />
-        <p class="text-sm text-center">
+        <p class="text-sm text-center text-white">
           {{ activeIndex < 7 ? stages[activeIndex].desc : "All done submit now" }}
         </p>
         <p class="text-red-600 text-center">Cancel</p>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -172,43 +186,43 @@ export default {
           text: "Start",
           tag: "right_image",
           url: "/images/start.png",
-          desc: "Start from Vehicle front View and go right.",
+          desc: "",
         },
         {
-          text: "Next",
+          text: "",
           tag: "front_image",
           url: "/images/front.png",
-          desc: "Front View of your car with Plate No.",
+          desc: "Front View ",
         },
         {
-          text: "Next",
+          text: "",
           tag: "right_image",
           url: "/images/right.png",
-          desc: "Right Side View of your car",
+          desc: "Right Side",
         },
         {
-          text: "Next",
+          text: "",
           tag: "back_image",
           url: "/images/back.png",
-          desc: "Back View of your car with Plate No.",
+          desc: "Back View",
         },
         {
-          text: "Next",
+          text: "",
           tag: "left_image",
           url: "/images/left.png",
-          desc: "Left Side View of your car",
+          desc: "Left Side",
         },
         {
-          text: "Next",
+          text: "",
           tag: "dashboard_image",
           url: "/images/front.png",
-          desc: "Interior view of your car showing your vehicle dashboard",
+          desc: "Dashboard View",
         },
         {
           text: "Finish",
           tag: "interior_back",
           url: "/images/back.png",
-          desc: "Interior view of your car showing your vehicle back seat",
+          desc: "Back Seat",
         },
       ],
       img: "",
@@ -246,8 +260,10 @@ export default {
       const cameraView = this.$refs["camera-view"];
       const ctaView = this.$refs["cta"];
       this.width = cameraView.clientWidth;
-      this.height = deviceHeight - ctaView.clientHeight;
-      this.cameraViewHeight = deviceHeight - (ctaView.clientHeight + 10);
+      //   this.height = deviceHeight - ctaView.clientHeight;
+      //   this.cameraViewHeight = deviceHeight - (ctaView.clientHeight + 10);
+      this.height = deviceHeight;
+      this.cameraViewHeight = deviceHeight;
 
       //   test
       const canvas = document.getElementById("canvas");
