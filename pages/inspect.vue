@@ -98,7 +98,7 @@
     >
       <button
         id="startbutton"
-        class="absolute top-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center border-white text-black font-medium text-sm bg-white rounded-full translate-y-[50%] after:absolute after:w-[57px] after:h-[57px] after:content-[''] after:rounded-full after:border after:border-[#101828]"
+        class="absolute select-none top-0 left-1/2 translate-x-[-50%] w-[65px] h-[65px] flex justify-center items-center border-white text-black font-medium text-sm bg-white rounded-full translate-y-[50%] after:absolute after:w-[57px] after:h-[57px] after:content-[''] after:rounded-full after:border after:border-[#101828]"
         @click="takePicture"
       >
         {{ activeIndex < 7 ? stages[activeIndex].text : "Submit" }}
@@ -136,7 +136,7 @@
         <img
           :src="car.imgPreview"
           alt="car-preview"
-          class="block w-full h-[200px] aspect-square"
+          class="block w-full h-auto aspect-square"
         />
         <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
       </div>
