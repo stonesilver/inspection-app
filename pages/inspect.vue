@@ -1,11 +1,10 @@
 <template>
-  <div v-if="activeStep === 'inspect'" class="h-screen w-screen fixed top-0">
-    <!-- <div v-if="img.length" class="fixed top-0 left-0 w-screen h-screen bg-white z-[1000]">
-      <span class="absolute top-0 right-0 text-2xl" @click="img = ''">&#10005;</span>
-      <img :src="img" alt="" class="w-full h-auto" />
-    </div> -->
+  <div
+    v-if="activeStep === 'inspect'"
+    class="h-screen w-screen fixed overflow-hidden top-0"
+  >
     <div ref="video-container" class="bg-black">
-      <video id="video" playsinline class="w-screen min-h-screen h-full">
+      <video id="video" playsinline class="w-screen h-screen">
         Video stream not available.
       </video>
     </div>
@@ -113,7 +112,9 @@
           alt="The screen capture will appear in this box."
         />
       </div>
-      <p v-if="activeIndex === 0" class="text-red-600 text-center">Cancel</p>
+      <nuxt-link to="/" v-if="activeIndex === 0" class="text-red-600 text-center"
+        >Cancel</nuxt-link
+      >
 
       <!-- <div class="">
         <img
@@ -130,31 +131,31 @@
   </div>
 
   <!-- View images -->
-  <div v-else class="p-6">
-    <div class="grid grid-cols-2 gap-4">
-      <div class="mb-4 last:mb-0" v-for="(car, idx) in images" :key="idx">
+  <div v-else class="flex flex-col p-6 h-[93vh] fixed overflow-hidden">
+    <p class="font-semibold text-center text-lg">Inspection Summary</p>
+    <div class="grid grid-cols-2 gap-4 flex-1 overflow-y-auto mt-4">
+      <div
+        class="mb-4 last:mb-0 bg-[#F8FCFB] px-2"
+        v-for="(car, idx) in images"
+        :key="idx"
+      >
         <img
           :src="car.imgPreview"
           alt="car-preview"
           class="block w-full h-auto aspect-square"
         />
-        <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
+        <p class="text-center text-sm capitalize">{{ car.title.replaceAll("_", " ") }}</p>
       </div>
     </div>
 
-    <div class="flex">
-      <button
-        class="flex-1 h-[50px] bg-teal-500 rounded-lg text-white mr-4"
-        @click="reset"
-      >
-        Redo
+    <div class="flex flex-col py-3 min-h-[130px]">
+      <button class="h-[56px] font-medium w-full bg-teal-500 rounded-lg text-white">
+        <nuxt-link to="/">Confirm Inspection</nuxt-link>
       </button>
 
-      <nuxt-link to="/" class="flex-1"
-        ><button class="h-[50px] w-full bg-teal-500 rounded-lg text-white">
-          Continue
-        </button></nuxt-link
-      >
+      <button class="h-[56px] font-medium w-full text-teal-500" @click="reset">
+        Inspect again
+      </button>
     </div>
   </div>
 </template>
@@ -446,7 +447,7 @@ export default {
 </script>
 
 <style>
-#photo {
+/*#photo {
   border: 1px solid black;
   box-shadow: 2px 2px 3px black;
   width: 320px;
@@ -455,5 +456,5 @@ export default {
 
 .camera-view {
   height: v-bind(ct);
-}
+}*/
 </style>

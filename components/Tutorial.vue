@@ -250,10 +250,10 @@ export default {
 </script>
 
 <style>
-#video {
-  /*width: v-bind(width);
-  height: v-bind(height);*/
-}
+/*#video {
+  width: v-bind(width);
+  height: v-bind(height);
+}*/
 
 #photo {
   border: 1px solid black;
@@ -271,27 +271,3 @@ export default {
   vertical-align: top;
 }*/
 </style>
-<!-- <svg class="position-absolute"
-               style="height: 100px; transform: rotate(270deg); width: 100px;">
-            <circle
-              class=""
-              stroke-width="4"
-              stroke="transparent"
-              fill="transparent"
-              r="25"
-              cx="50"
-              cy="50"
-            />
-            <circle
-              :style="{color: progress.color}"
-              stroke-width="4"
-              :stroke-dasharray="circumference"
-              :stroke-dashoffset="offset"
-              stroke-linecap="round"
-              stroke="currentColor"
-              fill="transparent"
-              r="25"
-              cx="50"
-              cy="50"
-            />
-          </svg> -->
