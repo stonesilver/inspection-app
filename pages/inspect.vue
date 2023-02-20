@@ -82,7 +82,7 @@
       class="flex flex-col justify-center fixed top-[60px] left-6 h-[178px] w-[176px] bg-[#05030366] rounded-lg"
     >
       <img
-        :src="activeIndex < 7 ? stages[activeIndex].url : '/images/car-right.png'"
+        :src="activeIndex < 7 ? stages[activeIndex].url : '/images/front.png'"
         alt="car-right"
         class="w-[145px] h-[114px] object-contain object-center block mx-auto"
       />
@@ -229,6 +229,7 @@ export default {
       cameraViewHeight: 0,
       mediaRecorder: null,
       chunks: [],
+      navigator: null,
     };
   },
   mounted() {
@@ -258,7 +259,7 @@ export default {
     setCameraView() {
       const deviceHeight = window.innerHeight;
       const cameraView = this.$refs["camera-view"];
-      const ctaView = this.$refs["cta"];
+      //   const ctaView = this.$refs["cta"];
       this.width = cameraView.clientWidth;
       //   this.height = deviceHeight - ctaView.clientHeight;
       //   this.cameraViewHeight = deviceHeight - (ctaView.clientHeight + 10);
@@ -268,13 +269,13 @@ export default {
       //   test
       const canvas = document.getElementById("canvas");
       canvas.width = this.width;
-      canvas.height = this.height - 10;
+      canvas.height = this.height;
     },
     getGeoLocation() {
       return new Promise((resolve, reject) => {
         try {
           if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(
+            this.navigator = navigator.geolocation.watchPosition(
               (cord) => this.setGeoLocation(cord, resolve),
               (err) => this.catchGeoLocationError(err, reject)
             );
@@ -303,8 +304,7 @@ export default {
         video: {
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          // frameRate: { ideal: 10, max: 15 },
-          facingMode: { exact: "environment" },
+          //   facingMode: { exact: "environment" },
         },
       };
       try {
@@ -424,6 +424,7 @@ export default {
   destroyed() {
     this.stopRecording();
     this.clearInterval();
+    navigator.geolocation.clearWatch(this.navigator);
   },
   computed: {
     ct() {
@@ -434,9 +435,6 @@ export default {
     },
   },
   watch: {
-    images(val) {
-      console.log(val, "images");
-    },
     timer(val) {
       if (val <= 0) {
         this.timer = 0;
