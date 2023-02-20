@@ -10,7 +10,7 @@
       </video>
     </div>
 
-    <!-- Step indicator -->
+    <!-- camera view -->
     <div
       ref="camera-view"
       class="w-[97%] mx-auto absolute top-0 left-2 h-[60vh] border-2 z-[20] border-teal-400 rounded-lg camera-view"
@@ -20,22 +20,33 @@
     <button
       class="absolute top-3 left-4 w-[42px] h-[42px] rounded-full bg-white border-[3px]"
       :class="[
-        activeIndex > 0 && timeLeft > 15
-          ? 'border-green-600'
-          : activeIndex > 0 && timeLeft < 15
+        activeIndex > 0 && timeLeft < 15
           ? 'border-red-600'
+          : activeIndex > 0 && timeLeft <= 30
+          ? 'border-amber-300'
+          : activeIndex > 0 && timeLeft > 15
+          ? 'border-green-600'
           : 'border-black',
       ]"
     >
       <span
         class="text-sm font-medium"
-        :class="[timeLeft < 15 ? 'text-red-600' : 'text-black']"
+        :class="[
+          activeIndex > 0 && timeLeft <= 15
+            ? 'text-red-600'
+            : activeIndex > 0 && timeLeft <= 30
+            ? 'text-amber-300'
+            : activeIndex > 0 && timeLeft > 15
+            ? 'text-green-600'
+            : 'text-black',
+        ]"
         >{{ timeLeft }}</span
       >
     </button>
 
+    <!-- Step indicator -->
     <div
-      class="absolute top-8 right-4 z-[49] bg-[#2b2b2b80] px-1 py-2 w-auto h-auto rounded-lg"
+      class="absolute top-8 right-4 z-[49] bg-[#2b2b2b80] px-2 pt-2 pb-10 w-auto h-auto rounded-[1rem]"
     >
       <span
         class="flex justify-center items-center w-8 h-8 rounded-full mb-3 last:mb-0"
@@ -61,6 +72,13 @@
       </span>
     </div>
 
+    <canvas
+      id="canvas"
+      class="hidden absolute top-0 left-0 mx-auto translate-x-[2%] border-2 border-amber-300"
+    >
+    </canvas>
+
+    <!-- CTA  -->
     <div
       ref="cta"
       class="flex flex-col justify-end fixed bottom-0 left-0 w-screen py-4 z-50 bg-white h-[28vh]"
@@ -73,7 +91,7 @@
         {{ activeIndex < 7 ? stages[activeIndex].text : "Submit" }}
       </button>
 
-      <canvas id="canvas" class="hidden"> </canvas>
+      <!-- <canvas id="canvas" class="hidden"> </canvas> -->
 
       <div class="output">
         <img
@@ -99,13 +117,15 @@
 
   <!-- View images -->
   <div v-else class="p-6">
-    <div class="mb-4 last:mb-0" v-for="(car, idx) in images" :key="idx">
-      <img
-        :src="car.imgPreview"
-        alt="car-preview"
-        class="block w-full h-[200px] aspect-square"
-      />
-      <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="mb-4 last:mb-0" v-for="(car, idx) in images" :key="idx">
+        <img
+          :src="car.imgPreview"
+          alt="car-preview"
+          class="block w-full h-[200px] aspect-square"
+        />
+        <span class="text-center">{{ car.title.replaceAll("_", " ") }}</span>
+      </div>
     </div>
 
     <div class="flex">
@@ -145,65 +165,66 @@ export default {
       interval: null,
       timer: 90000,
       images: [],
+      deniedLocation: false,
+      deniedCamera: false,
       stages: [
         {
           text: "Start",
           tag: "right_image",
-          url: "/images/car-right.png",
-          desc: 'Click "start" to begin.',
-        },
-        {
-          text: "Next",
-          tag: "right_image",
-          url: "/images/car-right.png",
-          desc: "Right Side View of your car",
+          url: "/images/start.png",
+          desc: "Start from Vehicle front View and go right.",
         },
         {
           text: "Next",
           tag: "front_image",
-          url: "/images/car-front.png",
+          url: "/images/front.png",
           desc: "Front View of your car with Plate No.",
         },
         {
           text: "Next",
+          tag: "right_image",
+          url: "/images/right.png",
+          desc: "Right Side View of your car",
+        },
+        {
+          text: "Next",
           tag: "back_image",
-          url: "/images/car-back.png",
+          url: "/images/back.png",
           desc: "Back View of your car with Plate No.",
         },
         {
           text: "Next",
           tag: "left_image",
-          url: "/images/car-left.png",
+          url: "/images/left.png",
           desc: "Left Side View of your car",
         },
         {
           text: "Next",
           tag: "dashboard_image",
-          url: "/images/car-dashboard.jpeg",
+          url: "/images/front.png",
           desc: "Interior view of your car showing your vehicle dashboard",
         },
         {
           text: "Finish",
           tag: "interior_back",
-          url: "/images/car-interior.jpeg",
+          url: "/images/back.png",
           desc: "Interior view of your car showing your vehicle back seat",
         },
       ],
       img: "",
       cameraViewHeight: 0,
+      mediaRecorder: null,
+      chunks: [],
     };
   },
   mounted() {
-    // const videoContainer = this.$refs["video-container"];
-    const deviceHeight = window.innerHeight;
-    const cameraView = this.$refs["camera-view"];
-    const ctaView = this.$refs["cta"];
-    this.width = cameraView.clientWidth;
-    this.height = deviceHeight - ctaView.clientHeight;
-    this.cameraViewHeight = deviceHeight - ctaView.clientHeight;
+    this.setCameraView();
 
-    this.getGeoLocation();
-    this.initMedia();
+    this.getGeoLocation()
+      .then(() => this.initMedia())
+      .catch((err) => {
+        console.error(err, "user denied");
+      });
   },
   methods: {
     check() {
@@ -220,19 +241,43 @@ export default {
       }
       return false;
     },
+    setCameraView() {
+      const deviceHeight = window.innerHeight;
+      const cameraView = this.$refs["camera-view"];
+      const ctaView = this.$refs["cta"];
+      this.width = cameraView.clientWidth;
+      this.height = deviceHeight - ctaView.clientHeight;
+      this.cameraViewHeight = deviceHeight - (ctaView.clientHeight + 10);
+
+      //   test
+      const canvas = document.getElementById("canvas");
+      canvas.width = this.width;
+      canvas.height = this.height - 10;
+    },
     getGeoLocation() {
-      try {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.watchPosition((position) => {
-            this.lat = position.coords.latitude;
-            this.long = position.coords.longitude;
-          });
-        } else {
-          console.error("GPS not available on device");
+      return new Promise((resolve, reject) => {
+        try {
+          if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(
+              (cord) => this.setGeoLocation(cord, resolve),
+              (err) => this.catchGeoLocationError(err, reject)
+            );
+          } else {
+            console.error("GPS not available on device");
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
-      }
+      });
+    },
+    setGeoLocation(position, resolve) {
+      this.lat = position.coords.latitude;
+      this.long = position.coords.longitude;
+      resolve("Permission allowed 😁");
+    },
+    catchGeoLocationError(err, reject) {
+      console.error(err, "error");
+      reject("user denied permission 🤨");
     },
     initMedia() {
       const video = document.getElementById("video");
@@ -243,7 +288,7 @@ export default {
           width: { ideal: 1280 },
           height: { ideal: 720 },
           // frameRate: { ideal: 10, max: 15 },
-          facingMode: { exact: "environment" },
+          //   facingMode: { exact: "environment" },
         },
       };
       try {
@@ -252,9 +297,12 @@ export default {
           .then((stream) => {
             this.stream = stream;
             this.startVideo(stream, video);
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.mediaRecorder.start();
           })
           .catch((err) => {
-            console.error(err);
+            console.error(err, "user denied");
+            this.deniedCamera = true;
           });
       } catch (error) {
         console.log("get user again 😡");
@@ -265,16 +313,16 @@ export default {
       video.srcObject = stream;
       video.play();
 
+      //   start video recording
+      //   this.mediaRecorder.onstop = () => {
+
+      //   }
+      //   stop video recording
+
       this.video.addEventListener(
         "canplay",
         () => {
           if (!this.isStreaming) {
-            // this.height = this.video.videoHeight / (this.video.videoWidth / this.width);
-
-            // this.video.setAttribute("width", this.width);
-            // this.video.setAttribute("height", this.height);
-            // this.canvas.setAttribute("width", this.width);
-            // this.canvas.setAttribute("height", this.height);
             this.isStreaming = true;
           }
         },
@@ -300,9 +348,7 @@ export default {
         if (this.width && this.height) {
           canvas.width = this.width;
           canvas.height = this.height;
-          console.log(this.width, this.height);
           context.drawImage(video, 0, 0, this.width, this.height);
-
           const data = canvas.toDataURL("image/png");
           this.img = data;
           fetch(data)
@@ -321,7 +367,6 @@ export default {
           this.clearPhoto();
         }
       } else {
-        alert("Inspection completed!!! ");
         this.activeStep = "preview";
         this.clearInterval();
       }
@@ -349,15 +394,15 @@ export default {
     },
     reset() {
       this.activeStep = "inspect";
-      this.photo = null;
-      this.canvas = null;
-      this.isStreaming = false;
-      this.stream = null;
       this.startInspection = false;
       this.activeIndex = 0;
       this.interval = null;
       this.timer = 90000;
       this.images = [];
+      setTimeout(() => {
+        this.initMedia();
+        this.setCameraView();
+      }, 1000);
     },
   },
   destroyed() {
@@ -373,12 +418,6 @@ export default {
     },
   },
   watch: {
-    // stream(val) {
-    //   console.log(val, "stream");
-    // },
-    // activeIndex(val) {
-    //   console.log(val, "active Index");
-    // },
     images(val) {
       console.log(val, "images");
     },
