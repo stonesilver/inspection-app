@@ -133,22 +133,25 @@
   <!-- View images -->
   <div v-else class="flex flex-col p-6 h-[93vh] fixed overflow-hidden">
     <p class="font-semibold text-center text-lg">Inspection Summary</p>
-    <div class="grid grid-cols-2 gap-4 flex-1 overflow-y-auto mt-4">
-      <div
-        class="mb-4 last:mb-0 bg-[#F8FCFB] px-2"
-        v-for="(car, idx) in images"
-        :key="idx"
-      >
-        <img
-          :src="car.imgPreview"
-          alt="car-preview"
-          class="block w-full h-auto aspect-square"
-        />
-        <p class="text-center text-sm capitalize">{{ car.title.replaceAll("_", " ") }}</p>
+    <div class="flex-1">
+      <div class="grid grid-cols-2 gap-4 overflow-y-auto mt-4">
+        <div
+          class="mb-4 last:mb-0 bg-[#F8FCFB] px-2"
+          v-for="(car, idx) in images"
+          :key="idx"
+        >
+          <img
+            :src="car.imgPreview"
+            alt="car-preview"
+            class="block w-full h-auto aspect-square"
+          />
+          <p class="text-center text-sm capitalize">
+            {{ car.title.replaceAll("_", " ") }}
+          </p>
+        </div>
       </div>
+      <video :src="videoFile" class="w-full h-[200px]" controls></video>
     </div>
-    <video :src="videoFile" class="w-full h-[200px]" controls></video>
-
     <div class="flex flex-col py-3 min-h-[130px]">
       <button class="h-[56px] font-medium w-full bg-teal-500 rounded-lg text-white">
         <nuxt-link to="/">Confirm Inspection</nuxt-link>
