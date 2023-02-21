@@ -147,6 +147,7 @@
         <p class="text-center text-sm capitalize">{{ car.title.replaceAll("_", " ") }}</p>
       </div>
     </div>
+    <video :src="videoFile" controls></video>
 
     <div class="flex flex-col py-3 min-h-[130px]">
       <button class="h-[56px] font-medium w-full bg-teal-500 rounded-lg text-white">
@@ -229,7 +230,9 @@ export default {
       img: "",
       cameraViewHeight: 0,
       mediaRecorder: null,
-      chunks: [],
+      videoChunks: [],
+      videoBlob: null,
+      videoFile: null,
       navigator: null,
     };
   },
@@ -314,8 +317,7 @@ export default {
           .then((stream) => {
             this.stream = stream;
             this.startVideo(stream, video);
-            this.mediaRecorder = new MediaRecorder(stream);
-            this.mediaRecorder.start();
+            this.recordVideo(stream);
           })
           .catch((err) => {
             console.error(err, "user denied");
@@ -325,16 +327,28 @@ export default {
         console.log("get user again 😡");
       }
     },
+    recordVideo(stream) {
+      let ctx = this;
+      ctx.mediaRecorder = new MediaRecorder(stream);
+      if (MediaRecorder.isTypeSupported('"video/webm"')) {
+        alert("supported!!!");
+      }
+      ctx.mediaRecorder.ondataavailable = (event) => {
+        ctx.videoChunks.push(event.data);
+      };
+      ctx.mediaRecorder.onstop = (event) => {
+        const blob = new Blob(ctx.videoChunks, {
+          type: "video/mp4",
+        });
+        const url = URL.createObjectURL(blob);
+        ctx.videoBlob = blob;
+        ctx.videoFile = url;
+      };
+    },
     startVideo(stream, video) {
       this.canvas = document.getElementById("canvas");
       video.srcObject = stream;
       video.play();
-
-      //   start video recording
-      //   this.mediaRecorder.onstop = () => {
-
-      //   }
-      //   stop video recording
 
       this.video.addEventListener(
         "canplay",
@@ -351,6 +365,7 @@ export default {
         ++this.activeIndex;
         this.startInspection = true;
         this.startTimer();
+        this.mediaRecorder.start();
         return null;
       }
 
@@ -386,6 +401,7 @@ export default {
       } else {
         this.activeStep = "preview";
         this.clearInterval();
+        this.mediaRecorder.stop();
       }
     },
     clearPhoto() {
@@ -442,19 +458,9 @@ export default {
         this.clearInterval();
       }
     },
+    videoBlob(val) {
+      console.log(val, "video blob");
+    },
   },
 };
 </script>
-
-<style>
-/*#photo {
-  border: 1px solid black;
-  box-shadow: 2px 2px 3px black;
-  width: 320px;
-  height: 240px;
-}
-
-.camera-view {
-  height: v-bind(ct);
-}*/
-</style>
