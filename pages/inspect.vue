@@ -147,7 +147,7 @@
         <p class="text-center text-sm capitalize">{{ car.title.replaceAll("_", " ") }}</p>
       </div>
     </div>
-    <video :src="videoFile" controls></video>
+    <video :src="videoFile" class="w-full h-[200px]" controls></video>
 
     <div class="flex flex-col py-3 min-h-[130px]">
       <button class="h-[56px] font-medium w-full bg-teal-500 rounded-lg text-white">
@@ -308,7 +308,7 @@ export default {
         video: {
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          facingMode: { exact: "environment" },
+          // facingMode: { exact: "environment" },
         },
       };
       try {
@@ -330,8 +330,10 @@ export default {
     recordVideo(stream) {
       let ctx = this;
       ctx.mediaRecorder = new MediaRecorder(stream);
-      if (MediaRecorder.isTypeSupported('"video/webm"')) {
+      if (!ctx?.mediaRecorder) {
+        console.log(ctx?.mediaRecorder, "ctx.mediaRecorder");
         alert("supported!!!");
+        return null;
       }
       ctx.mediaRecorder.ondataavailable = (event) => {
         ctx.videoChunks.push(event.data);
@@ -365,7 +367,7 @@ export default {
         ++this.activeIndex;
         this.startInspection = true;
         this.startTimer();
-        this.mediaRecorder.start();
+        this.mediaRecorder?.start();
         return null;
       }
 
@@ -401,7 +403,7 @@ export default {
       } else {
         this.activeStep = "preview";
         this.clearInterval();
-        this.mediaRecorder.stop();
+        this.mediaRecorder?.stop();
       }
     },
     clearPhoto() {
