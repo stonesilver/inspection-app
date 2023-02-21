@@ -10,10 +10,10 @@
     </div>
 
     <!-- camera view -->
-    <div
+    <!-- <div
       ref="camera-view"
-      class="w-[97%] mx-auto absolute top-0 left-2 h-[60vh] border-2 z-[20] border-transparent rounded-lg camera-view"
-    ></div>
+      class="w-screen mx-auto absolute top-0 left-0 h-[90vh] border-2 z-[20] border-teal-400 rounded-lg camera-view"
+    ></div> -->
 
     <!-- Timer -->
     <button
@@ -227,7 +227,7 @@ export default {
           desc: "Back Seat",
         },
       ],
-      img: "",
+      // img: "",
       cameraViewHeight: 0,
       mediaRecorder: null,
       videoChunks: [],
@@ -246,34 +246,34 @@ export default {
       });
   },
   methods: {
-    check() {
-      if (window.self !== window.top) {
-        // Ensure that if our document is in a frame, we get the user
-        // to first open it in its own tab or window. Otherwise, it
-        // won't be able to request permission for camera access.
-        document.querySelector(".contentarea").remove();
-        const button = document.createElement("button");
-        button.textContent = "View live result of the example code above";
-        document.body.append(button);
-        button.addEventListener("click", () => window.open(location.href));
-        return true;
-      }
-      return false;
-    },
+    // check() {
+    //   if (window.self !== window.top) {
+    //     // Ensure that if our document is in a frame, we get the user
+    //     // to first open it in its own tab or window. Otherwise, it
+    //     // won't be able to request permission for camera access.
+    //     document.querySelector(".contentarea").remove();
+    //     const button = document.createElement("button");
+    //     button.textContent = "View live result of the example code above";
+    //     document.body.append(button);
+    //     button.addEventListener("click", () => window.open(location.href));
+    //     return true;
+    //   }
+    //   return false;
+    // },
     setCameraView() {
-      const deviceHeight = window.innerHeight;
-      const cameraView = this.$refs["camera-view"];
+      // const deviceHeight = window.innerHeight;
+      // const cameraView = this.$refs["camera-view"];
       //   const ctaView = this.$refs["cta"];
-      this.width = cameraView.clientWidth;
+      this.width = window.innerWidth;
       //   this.height = deviceHeight - ctaView.clientHeight;
       //   this.cameraViewHeight = deviceHeight - (ctaView.clientHeight + 10);
-      this.height = deviceHeight;
-      this.cameraViewHeight = deviceHeight;
+      this.height = window.innerHeight;
+      // this.cameraViewHeight = deviceHeight;
 
       //   test
-      const canvas = document.getElementById("canvas");
-      canvas.width = this.width;
-      canvas.height = this.height;
+      // const canvas = document.getElementById("canvas");
+      // canvas.width = this.width;
+      // canvas.height = this.height;
     },
     getGeoLocation() {
       return new Promise((resolve, reject) => {
@@ -320,11 +320,11 @@ export default {
             this.recordVideo(stream);
           })
           .catch((err) => {
-            console.error(err, "user denied");
+            console.error(err, "This device is not supported ☹️");
             this.deniedCamera = true;
           });
       } catch (error) {
-        console.log("get user again 😡");
+        console.log("Device not supported 😡");
       }
     },
     recordVideo(stream) {
@@ -372,10 +372,10 @@ export default {
       }
 
       if (this.activeIndex < 7) {
-        const photo = document.getElementById("photo");
-        this.photo = photo;
-        const canvas = document.getElementById("canvas");
-        this.canvas = canvas;
+        this.photo = document.getElementById("photo");
+        // this.photo = photo;
+        this.canvas = document.getElementById("canvas");
+        // this.canvas = canvas;
         const video = document.querySelector("#video");
 
         const context = canvas.getContext("2d");
@@ -384,7 +384,7 @@ export default {
           canvas.height = this.height;
           context.drawImage(video, 0, 0, this.width, this.height);
           const data = canvas.toDataURL("image/png");
-          this.img = data;
+          // this.img = data;
           fetch(data)
             .then((res) => res.blob())
             .then((blob) => {
@@ -446,9 +446,9 @@ export default {
     navigator.geolocation.clearWatch(this.navigator);
   },
   computed: {
-    ct() {
-      return `${this.cameraViewHeight}px`;
-    },
+    // ct() {
+    //   return `${this.cameraViewHeight}px`;
+    // },
     timeLeft() {
       return this.timer / 1000;
     },
